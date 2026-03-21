@@ -34,8 +34,6 @@ button {
   border: none;
   background: #00e676;
   cursor: pointer;
-  position: relative;
-  z-index: 10;
 }
 
 #item {
@@ -44,6 +42,20 @@ button {
   color: #fff;
 }
 
+/* HEARTS ❤️ */
+#lives {
+  font-size: 25px;
+  color: red;
+}
+
+/* IMPACT TEXT */
+#impact {
+  margin-top: 15px;
+  font-size: 18px;
+  color: #ff5252;
+}
+
+/* BINS */
 .bins {
   display: flex;
   justify-content: center;
@@ -102,38 +114,39 @@ button {
   <h3 id="levelText"></h3>
   <h3 id="timer"></h3>
   <h3 id="score"></h3>
+  <h3 id="lives"></h3>
   <h3 id="pollution"></h3>
 
   <div id="item"></div>
+  <div id="impact"></div>
 
   <div class="bins">
-    <div class="bin bio" onclick="check('bio')">Bio</div>
-    <div class="bin nonbio" onclick="check('nonbio')">Non-Bio</div>
+    <div class="bin bio" onclick="check('bio')">Biodegradable</div>
+    <div class="bin nonbio" onclick="check('nonbio')">Non-Biodegradable</div>
     <div class="bin recycle" onclick="check('recycle')">Recycle</div>
   </div>
 </div>
 
 <!-- RESULT -->
 <div id="screen5" class="screen">
-  <h2>Result</h2>
+  <h2>Game Result</h2>
   <p id="resultText"></p>
   <button onclick="next(1)">Play Again</button>
 </div>
 
 <script>
-// navigation
+// NAV
 function next(n){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen"+n).classList.add("active");
 }
 
-// FIXED START
+// START FIX
 function goStart(){
   startMusic();
   next(2);
 }
 
-// MUSIC FIX
 function startMusic(){
   document.getElementById("bgMusic").play().catch(()=>{});
 }
@@ -150,86 +163,95 @@ function setLevel(l){
   next(3);
 }
 
-// 150 ITEMS
+// DATA
 const wasteItems = [
-{name:"Banana Peel",type:"bio"},
-{name:"Leaves",type:"bio"},
-{name:"Food Waste",type:"bio"},
-{name:"Plastic Bottle",type:"recycle"},
-{name:"Paper",type:"recycle"},
-{name:"Glass Bottle",type:"recycle"},
-{name:"Candy Wrapper",type:"nonbio"},
-{name:"Styrofoam",type:"nonbio"},
-{name:"Plastic Straw",type:"nonbio"},
-{name:"Notebook",type:"recycle"},
-{name:"Chip Bag",type:"nonbio"},
-{name:"Egg Shells",type:"bio"},
-{name:"Vegetable Scraps",type:"bio"},
-{name:"Juice Box",type:"recycle"},
-{name:"Aluminum Can",type:"recycle"},
-{name:"Broken Toys",type:"nonbio"},
-{name:"Battery",type:"nonbio"},
-{name:"Newspaper",type:"recycle"},
-{name:"Magazine",type:"recycle"},
-{name:"Plastic Bag",type:"nonbio"},
-{name:"Rice",type:"bio"},
-{name:"Fish Bones",type:"bio"},
-{name:"Metal Can",type:"recycle"},
-{name:"Glass Jar",type:"recycle"},
-{name:"Plastic Cup",type:"nonbio"},
-{name:"Plastic Spoon",type:"nonbio"},
-{name:"Banana Leaves",type:"bio"},
-{name:"Coconut Shell",type:"bio"},
-{name:"Paper Bag",type:"recycle"},
-{name:"Milk Carton",type:"recycle"}
+  {name:"Banana Peel",type:"bio"},
+  {name:"Plastic Bottle",type:"recycle"},
+  {name:"Styrofoam",type:"nonbio"},
+  {name:"Leaves",type:"bio"},
+  {name:"Paper",type:"recycle"},
+  {name:"Candy Wrapper",type:"nonbio"}
 ];
 
-// variables
+// VARIABLES
 let current, score=0, pollution=0, player="";
+let lives=5;
 
-// start game
+// START GAME
 function startGame(){
   player=document.getElementById("username").value;
   if(!player) return alert("Enter name!");
 
   score=0;
   pollution=0;
+  lives=5;
 
   document.getElementById("player").innerText="Player: "+player;
   document.getElementById("levelText").innerText="Level: "+level;
   document.getElementById("timer").innerText="Time: "+time;
 
+  updateLives();
   next(4);
   newItem();
   startTimer();
 }
 
-// new item
+// NEW ITEM
 function newItem(){
   current=wasteItems[Math.floor(Math.random()*wasteItems.length)];
   document.getElementById("item").innerText=current.name;
+  document.getElementById("impact").innerText="";
 }
 
-// check
+// CHECK
 function check(ans){
   if(ans===current.type){
     score++;
     document.getElementById("correctSound").play();
   } else {
+    lives--;
     pollution+=10;
     document.getElementById("wrongSound").play();
+    showImpact();
   }
   update();
   newItem();
+
+  if(lives<=0){
+    endGame();
+  }
 }
 
-// update
+// IMPACT MESSAGE 🔥
+function showImpact(){
+  let impacts=[
+    "❌ Pollution increased!",
+    "🌊 Water contamination!",
+    "🐟 Harm to marine life!",
+    "🌱 Soil damage!",
+    "🌍 Environmental harm!"
+  ];
+  document.getElementById("impact").innerText=
+    impacts[Math.floor(Math.random()*impacts.length)];
+}
+
+// UPDATE
 function update(){
   document.getElementById("score").innerText="Score: "+score;
   document.getElementById("pollution").innerText="Pollution: "+pollution+"%";
+  updateLives();
 }
 
-// timer
+// HEART DISPLAY ❤️
+function updateLives(){
+  let hearts="";
+  for(let i=0;i<lives;i++){
+    hearts+="❤️ ";
+  }
+  document.getElementById("lives").innerText="Lives: "+hearts;
+}
+
+// TIMER
 function startTimer(){
   let t=setInterval(()=>{
     time--;
@@ -242,11 +264,13 @@ function startTimer(){
   },1000);
 }
 
-// end
+// END
 function endGame(){
   document.getElementById("gameoverSound").play();
+
   document.getElementById("resultText").innerText=
     player+" | Score: "+score+" | Pollution: "+pollution+"%";
+
   next(5);
 }
 </script>

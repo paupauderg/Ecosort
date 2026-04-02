@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>EcoSort Final Working</title>
+<title>EcoSort</title>
 
 <style>
 body{
@@ -144,9 +144,9 @@ cursor:pointer;
 
 <!-- BINS -->
 <div class="bins">
-<div class="bin bio" onclick="playerCheck('bio')">BIO</div>
-<div class="bin nonbio" onclick="playerCheck('nonbio')">NONBIO</div>
-<div class="bin recycle" onclick="playerCheck('recycle')">RECYCLE</div>
+<div class="bin bio" onclick="playerCheck('biodegradable')">BIODEGRADABLE</div>
+<div class="bin nonbio" onclick="playerCheck('non-biodegradable')">NON-BIODEGRADABLE</div>
+<div class="bin recycle" onclick="playerCheck('recyclable')">RECYCLABLE</div>
 </div>
 
 </div>
@@ -194,15 +194,15 @@ const recycle=[
 ];
 
 const waste=[
-...bio.map(x=>({name:x,type:"bio"})),
-...nonbio.map(x=>({name:x,type:"nonbio"})),
-...recycle.map(x=>({name:x,type:"recycle"}))
+...bio.map(x=>({name:x,type:"biodegradable"})),
+...nonbio.map(x=>({name:x,type:"non-biodegradable"})),
+...recycle.map(x=>({name:x,type:"recyclable"}))
 ];
 
 const quiz=[
-{q:"Plastic belongs to?",a:"nonbio"},
-{q:"Banana peel is?",a:"bio"},
-{q:"Paper is?",a:"recycle"}
+{q:"Plastic belongs to?",a:"non-biodegradable"},
+{q:"Banana peel is?",a:"biodegradable"},
+{q:"Paper is?",a:"recyclable"}
 ];
 
 function setLevel(t){time=t;next(3);}
@@ -254,9 +254,9 @@ itemP.innerText=q.q;
 itemAI.innerText=q.q;
 
 extraP.innerHTML=`
-<button onclick="playerCheck('bio')">Bio</button>
-<button onclick="playerCheck('nonbio')">NonBio</button>
-<button onclick="playerCheck('recycle')">Recycle</button>`;
+<button onclick="playerCheck('biodegradable')">Biodegradable</button>
+<button onclick="playerCheck('non-biodegradable')">Non-Biodegradable</button>
+<button onclick="playerCheck('recyclable')">Recyclable</button>`;
 }
 
 if(mode==="fall"){

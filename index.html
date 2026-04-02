@@ -5,112 +5,98 @@
 <title>EcoSort</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#1e3c72;
-color:white;
-overflow:hidden;
-}
-
+body{margin:0;font-family:Arial;background:#1e3c72;color:white;overflow:hidden;}
 .screen{display:none;text-align:center;padding-top:50px;}
 .active{display:block}
 
 .container{display:flex;height:100vh;}
-
-.side{
-flex:1;
-border-right:2px solid white;
-position:relative;
-}
+.side{flex:1;border-right:2px solid white;position:relative;}
 .side:last-child{border:none;}
 
-.hud{
-position:absolute;
-top:10px;
-left:10px;
-}
+.hud{position:absolute;top:10px;left:10px;}
+.item{margin-top:100px;font-size:22px;}
 
-.item{
-margin-top:100px;
-font-size:22px;
-text-align:center;
-}
-
-/* bins always visible */
 .bins{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-display:flex;
-justify-content:center;
-gap:10px;
-background:#000000aa;
-padding:10px;
-z-index:999;
+position:fixed;bottom:0;width:100%;
+display:flex;justify-content:center;gap:10px;
+background:#000000aa;padding:10px;
 }
 
+/* 🔧 LIIT FONT PARA KASYA */
 .bin{
-width:140px;
-height:70px;
-line-height:70px;
+width:160px;height:70px;
+line-height:20px;
+padding-top:15px;
 border-radius:10px;
 cursor:pointer;
 font-weight:bold;
 text-align:center;
+font-size:14px;
 }
 
 .bio{background:green;}
 .nonbio{background:red;}
 .recycle{background:blue;}
 
-/* falling */
 .falling{
 position:absolute;
 top:0;
-left:50%;
-transform:translateX(-50%);
-font-size:18px;
-background:#fff;
-color:#000;
-padding:8px;
-border-radius:8px;
+background:#fff;color:#000;
+padding:8px;border-radius:8px;
 }
 
-button{
-padding:10px 20px;
-margin:10px;
-border:none;
+.trashcan{
+position:fixed;
+bottom:90px;
+left:50%;
+transform:translateX(-50%);
+width:170px;height:60px;
+background:#ff9800;
+color:black;
+font-weight:bold;
+line-height:60px;
+text-align:center;
 border-radius:10px;
-cursor:pointer;
+font-size:13px;
 }
+
+button{padding:10px 20px;margin:10px;border:none;border-radius:10px;}
 </style>
 </head>
 
 <body>
 
-<!-- START -->
 <div id="s1" class="screen active">
 <h1>♻️ EcoSort</h1>
-<button onclick="next(2)">Start</button>
+<button onclick="next('Name')">Start</button>
 </div>
 
-<!-- LEVEL -->
+<div id="sName" class="screen">
+<h2>Enter Name</h2>
+<input id="username">
+<br><br>
+<button onclick="saveName()">Continue</button>
+</div>
+
 <div id="s2" class="screen">
 <button onclick="setLevel(45)">Easy</button>
 <button onclick="setLevel(30)">Medium</button>
 <button onclick="setLevel(20)">Hard</button>
 </div>
 
-<!-- MODE -->
 <div id="s3" class="screen">
 <button onclick="setMode('sort')">Sorting</button>
 <button onclick="setMode('quiz')">Quiz</button>
-<button onclick="setMode('fall')">Falling</button>
+<button onclick="next('fallSelect')">Falling</button>
 </div>
 
-<!-- GAME -->
+<div id="sfallSelect" class="screen">
+<h2>Select Target</h2>
+<button onclick="startFall('bio')">BIODEGRADABLE</button>
+<button onclick="startFall('nonbio')">NON-BIODEGRADABLE</button>
+<button onclick="startFall('recycle')">RECYCLABLE</button>
+</div>
+
 <div id="s4" class="screen">
 
 <h3 id="direction"></h3>
@@ -119,34 +105,27 @@ cursor:pointer;
 
 <div class="side">
 <h2>YOU</h2>
-
 <div class="hud">
 <div id="scoreP">Score:0</div>
 <div id="timer">Time:0</div>
 </div>
-
 <div id="itemP" class="item"></div>
-<div id="extraP"></div>
 </div>
 
 <div class="side">
 <h2>AI 🤖</h2>
-
 <div class="hud">
 <div id="scoreAI">AI:0</div>
-<div id="aiAction"></div>
 </div>
-
 <div id="itemAI" class="item"></div>
 </div>
 
 </div>
 
-<!-- BINS -->
-<div class="bins">
-<div class="bin bio" onclick="playerCheck('biodegradable')">BIODEGRADABLE</div>
-<div class="bin nonbio" onclick="playerCheck('non-biodegradable')">NON-BIODEGRADABLE</div>
-<div class="bin recycle" onclick="playerCheck('recyclable')">RECYCLABLE</div>
+<div class="bins" id="bins">
+<div class="bin bio" onclick="playerCheck('bio')">BIODEGRADABLE</div>
+<div class="bin nonbio" onclick="playerCheck('nonbio')">NON-BIODEGRADABLE</div>
+<div class="bin recycle" onclick="playerCheck('recycle')">RECYCLABLE</div>
 </div>
 
 </div>
@@ -158,69 +137,60 @@ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
 document.getElementById("s"+n).classList.add("active");
 }
 
-let time=30, timerInt;
-let mode="sort";
-let score=0, aiScore=0;
-let current;
-let fallInterval;
+let playerName="";
+function saveName(){
+let n=document.getElementById("username").value;
+if(!n){alert("Enter name");return;}
+playerName=n;
+next(2);
+}
 
-/* 🔥 REAL 50 ITEMS EACH */
+let time=30,score=0,aiScore=0,mode,current;
+let timerInt,fallInterval,targetType;
 
-// BIO (50)
-const bio=[
-"Banana Peel","Apple Core","Leaves","Grass","Food Waste","Vegetable Scraps","Eggshells","Fruit Peels","Coffee Grounds","Tea Bags",
-"Bread","Rice","Corn Husks","Flower Waste","Twigs","Branches","Wood Chips","Paper Napkin","Cardboard Food Box","Coconut Shell",
-"Peanut Shell","Onion Skin","Garlic Skin","Fish Bones","Meat Scraps","Chicken Bones","Spoiled Food","Rotten Fruits","Rotten Vegetables","Seaweed",
-"Sawdust","Dry Leaves","Wet Leaves","Plant Roots","Herbs","Grass Clippings","Compost","Tree Bark","Vegetable Peels","Fruit Seeds",
-"Pumpkin Skin","Potato Peels","Sugarcane Waste","Banana Leaves","Plant Waste","Organic Soil","Garden Waste","Fruit Pulp","Flower Petals","Biodegradable Plate"
-];
+const make = (arr,type)=>arr.map(x=>({name:x,type:type}));
 
-// NONBIO (50)
-const nonbio=[
-"Plastic Bottle","Plastic Bag","Styrofoam","Candy Wrapper","Chip Bag","Plastic Straw","Plastic Cup","Broken Glass","Ceramic","Rubber",
-"Old Shoes","Plastic Spoon","Plastic Fork","Plastic Plate","Plastic Container","Packaging Plastic","Bubble Wrap","CD Disc","DVD","Tire",
-"Broken Toys","Sachet","Plastic Lid","Plastic Wrapper","Foam","Plastic Packaging","Synthetic Cloth","Nylon","Plastic Rope","Old Electronics",
-"Battery","Light Bulb","Wire","Cable","Plastic Tube","Plastic Cap","Disposable Mask","Gloves","Plastic Film","Plastic Net",
-"Plastic Sheet","Plastic Box","Broken Plastic Chair","Plastic Tray","Plastic Bottle Cap","Plastic Case","Plastic Basket","Plastic Frame","Plastic Toy","Plastic Brush"
-];
+const bio = make([
+"banana peel","apple core","leftover rice","vegetable scraps","egg shells","coffee grounds","tea bag","bread","fruit peel","fish bones",
+"chicken bones","spoiled food","leaf","grass","flower","plant stem","fruit seeds","paper napkin","tissue","food waste",
+"vegetable peel","fruit skin","organic waste","compost","garden waste","weeds","flower petals","banana leaf","corn husk","coconut shell",
+"peanut shells","fruit core","tree leaves","plant roots","soil","food leftovers","rice husk","tea leaves","vegetable stem","spoiled fruit",
+"organic scraps","paper plate","biodegradable bag","plant waste","natural fiber","food crumbs","fruit pulp","leaf litter","organic trash","plant waste"
+],"bio");
 
-// RECYCLE (50)
-const recycle=[
-"Paper","Newspaper","Magazine","Notebook","Cardboard","Carton Box","Glass Bottle","Aluminum Can","Tin Can","Steel Can",
-"Paper Bag","Office Paper","Bond Paper","Carton","Egg Carton","Milk Carton","Juice Box","Glass Jar","Wine Bottle","Beer Bottle",
-"Scrap Paper","Old Books","Packaging Box","Paper Tube","Paper Roll","Paper Envelope","Plastic Bottle Clean","Plastic Container Clean","Glass Cup","Glass Plate",
-"Metal Scrap","Steel Rod","Iron Sheet","Cans","Boxboard","Paperboard","Recycled Paper","Plastic Jug","Plastic Drum","Plastic Bin",
-"Glass Container","Tin Box","Metal Lid","Aluminum Foil","Paper Wrapper Clean","Clean Carton","Reusable Bottle","Reusable Container","Paper Packaging","Card Stock"
-];
+const nonbio = make([
+"plastic bottle","plastic bag","candy wrapper","chip bag","straw","styrofoam","plastic spoon","plastic fork","cup lid","bubble wrap",
+"snack wrapper","juice pouch","milk carton","plastic cover","old pen","broken ruler","plastic cup","plastic plate","wrapper","plastic film",
+"rubber band","tape","plastic string","polybag","plastic packaging","old toothbrush","plastic case","plastic toy","hard plastic","soft plastic",
+"plastic container","disposable cup","plastic lid","plastic scrap","plastic trash","synthetic waste","plastic piece","plastic debris","plastic fragments","plastic waste",
+"food wrapper","instant noodles cup","plastic sheet","plastic material","broken plastic","plastic parts","plastic junk","garbage plastic","waste plastic","plastic residue"
+],"nonbio");
 
-const waste=[
-...bio.map(x=>({name:x,type:"biodegradable"})),
-...nonbio.map(x=>({name:x,type:"non-biodegradable"})),
-...recycle.map(x=>({name:x,type:"recyclable"}))
-];
+const recycle = make([
+"paper","notebook","newspaper","magazine","cardboard","carton box","paper bag","bond paper","old book","folder",
+"envelope","clean paper","glass bottle","glass jar","aluminum can","tin can","metal lid","foil","clean container","plastic bottle (clean)",
+"paper cup","egg tray","carton packaging","paper wrapper","office paper","scratch paper","clean carton","clean bottle","glass container","metal can",
+"aluminum foil","clean plastic","recyclable plastic","paper roll","cardboard box","paper sheet","reusable paper","clean packaging","glass scrap","metal scrap",
+"clean wrapper","recycle material","clean cup","clean can","clean jar","paper scrap","recyclable waste","clean paper bag","clean box","recycle item"
+],"recycle");
+
+const waste=[...bio,...nonbio,...recycle];
 
 const quiz=[
-{q:"Plastic belongs to?",a:"non-biodegradable"},
-{q:"Banana peel is?",a:"biodegradable"},
-{q:"Paper is?",a:"recyclable"}
+...bio.map(x=>({q:x.name+" belongs to?",a:"bio"})),
+...nonbio.map(x=>({q:x.name+" belongs to?",a:"nonbio"})),
+...recycle.map(x=>({q:x.name+" belongs to?",a:"recycle"}))
 ];
 
 function setLevel(t){time=t;next(3);}
 function setMode(m){mode=m;startGame();}
 
 function startGame(){
-score=0; aiScore=0;
+score=0;aiScore=0;
+document.getElementById("bins").style.display="flex";
 next(4);
-setDirection();
 newRound();
 startTimer();
-startAI();
-}
-
-function setDirection(){
-if(mode==="sort") direction.innerText="Sort the waste.";
-if(mode==="quiz") direction.innerText="Answer the question.";
-if(mode==="fall") direction.innerText="Falling waste! Click correct bin!";
 }
 
 function startTimer(){
@@ -231,89 +201,85 @@ timer.innerText="Time:"+time;
 if(time<=0){
 clearInterval(timerInt);
 clearInterval(fallInterval);
-alert("Game Over\nYou:"+score+"\nAI:"+aiScore);
+alert(playerName+" Score:"+score);
 location.reload();
 }
 },1000);
 }
 
 function newRound(){
-
-extraP.innerHTML="";
-
 if(mode==="sort"){
 current=waste[Math.random()*waste.length|0];
 itemP.innerText=current.name;
 itemAI.innerText=current.name;
 }
-
 if(mode==="quiz"){
-let q=quiz[Math.random()*quiz.length|0];
-current=q;
-itemP.innerText=q.q;
-itemAI.innerText=q.q;
-
-extraP.innerHTML=`
-<button onclick="playerCheck('biodegradable')">Biodegradable</button>
-<button onclick="playerCheck('non-biodegradable')">Non-Biodegradable</button>
-<button onclick="playerCheck('recyclable')">Recyclable</button>`;
-}
-
-if(mode==="fall"){
-startFalling();
+current=quiz[Math.random()*quiz.length|0];
+itemP.innerText=current.q;
+itemAI.innerText=current.q;
 }
 }
 
-/* 🔥 REAL FALLING ANIMATION */
-function startFalling(){
+function startFall(type){
+targetType=type;
+document.getElementById("bins").style.display="none";
+next(4);
 
-clearInterval(fallInterval);
+direction.innerText="Catch only "+type.toUpperCase();
+
+let can=document.createElement("div");
+can.className="trashcan";
+can.innerText=type.toUpperCase();
+document.body.appendChild(can);
+
+let x=window.innerWidth/2;
+document.addEventListener("keydown",(e)=>{
+if(e.key==="ArrowLeft") x-=40;
+if(e.key==="ArrowRight") x+=40;
+can.style.left=x+"px";
+});
+
+fallInterval=setInterval(()=>{
+let obj=waste[Math.random()*waste.length|0];
 
 let div=document.createElement("div");
 div.className="falling";
+div.innerText=obj.name;
+div.style.left=Math.random()*window.innerWidth+"px";
 document.body.appendChild(div);
 
-fallInterval=setInterval(()=>{
-
-let obj=waste[Math.random()*waste.length|0];
-current=obj;
-div.innerText=obj.name;
-
 let y=0;
-
 let move=setInterval(()=>{
-y+=5;
+y+=6;
 div.style.top=y+"px";
 
 if(y>window.innerHeight-150){
+
+let canX=can.getBoundingClientRect().left;
+let objX=div.getBoundingClientRect().left;
+
+if(Math.abs(canX-objX)<100){
+if(obj.type===targetType){score++;}
+else{score--;}
+scoreP.innerText="Score:"+score;
+}
+
+div.remove();
 clearInterval(move);
-y=0;
 }
 },50);
 
-},1500);
+},1200);
+
+startTimer();
 }
 
 function playerCheck(ans){
-if(ans===current.type || ans===current.a){
-score++;
-}
+let correct=current.type || current.a;
+if(ans===correct){score++;}
+else{score--;}
 scoreP.innerText="Score:"+score;
-
-if(mode!=="fall") newRound();
-}
-
-function startAI(){
-setInterval(()=>{
-let c=["bio","nonbio","recycle"][Math.random()*3|0];
-aiAction.innerText="AI:"+c;
-
-if(c===current.type || c===current.a){
-aiScore++;
-}
-scoreAI.innerText="AI:"+aiScore;
-
-},1200);
+newRound();
 }
 
 </script>

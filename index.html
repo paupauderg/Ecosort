@@ -81,6 +81,27 @@ button{padding:10px 20px;margin:10px;border:none;border-radius:10px;}
 
 <body>
 
+<!-- 🔇 MUTE BUTTON -->
+<button id="muteBtn" onclick="toggleMute()" style="
+position:fixed;
+top:10px;
+right:10px;
+z-index:999;
+padding:10px 15px;
+border:none;
+border-radius:10px;
+background:white;
+font-weight:bold;
+cursor:pointer;
+">
+🔊 Sound ON
+</button>
+
+<!-- 🔊 AUDIO (FIXED METHOD) -->
+<audio id="clickSound" src="click.mp3"></audio>
+<audio id="correctSound" src="correct.mp3"></audio>
+<audio id="wrongSound" src="wrong.mp3"></audio>
+
 <div id="s1" class="screen active">
 <h1>♻️ EcoSort</h1>
 <p>Rotate phone to <b>LANDSCAPE MODE</b></p>
@@ -165,22 +186,62 @@ playerName=n;
 next(2);
 }
 
+/* 🔇 MUTE */
+let isMuted=false;
+
+function toggleMute(){
+isMuted=!isMuted;
+document.getElementById("muteBtn").innerText =
+isMuted ? "🔇 Sound OFF" : "🔊 Sound ON";
+}
+
+/* 🔊 SAFE PLAY FUNCTION (IMPORTANT FIX) */
+function safePlay(audio){
+if(isMuted) return;
+if(!audio) return;
+
+audio.currentTime=0;
+audio.volume=1;
+
+let playPromise = audio.play();
+if(playPromise !== undefined){
+playPromise.catch(()=>{});
+}
+}
+
+function playClick(){
+safePlay(document.getElementById("clickSound"));
+}
+
+function playCorrect(){
+safePlay(document.getElementById("correctSound"));
+}
+
+/* 🔥 FIXED WRONG SOUND */
+function playWrong(){
+safePlay(document.getElementById("wrongSound"));
+}
+
+/* AUTO CLICK SOUND */
+document.querySelectorAll("button").forEach(btn=>{
+btn.addEventListener("click", playClick);
+});
+
 let time=30,score=0,aiScore=0,mode,current;
 let timerInt,fallInterval,targetType;
 let canP,canAI,xP,xAI;
 
-/* 🔥 50 EACH */
+/* GAME DATA */
 const make=(arr,type)=>arr.map(x=>({name:x,type:type}));
 
-const bio = make([/* 50 items */ "banana peel","apple core","leftover rice","vegetable scraps","egg shells","coffee grounds","tea bag","bread","fruit peel","fish bones","chicken bones","spoiled food","leaf","grass","flower","plant stem","fruit seeds","paper napkin","tissue","food waste","vegetable peel","fruit skin","organic waste","compost","garden waste","weeds","flower petals","banana leaf","corn husk","coconut shell","peanut shells","fruit core","tree leaves","plant roots","soil","food leftovers","rice husk","tea leaves","vegetable stem","spoiled fruit","organic scraps","paper plate","biodegradable bag","plant waste","natural fiber","food crumbs","fruit pulp","leaf litter","organic trash","plant waste"],"bio");
+const bio = make(["banana peel","apple core","leftover rice","vegetable scraps","egg shells","coffee grounds","tea bag","bread","fruit peel","fish bones","chicken bones","spoiled food","leaf","grass","flower","plant stem","fruit seeds","paper napkin","tissue","food waste","vegetable peel","fruit skin","organic waste","compost","garden waste","weeds","flower petals","banana leaf","corn husk","coconut shell","peanut shells","fruit core","tree leaves","plant roots","soil","food leftovers","rice husk","tea leaves","vegetable stem","spoiled fruit","organic scraps","paper plate","biodegradable bag","plant waste","natural fiber","food crumbs","fruit pulp","leaf litter","organic trash","plant waste"],"bio");
 
-const nonbio = make([/* 50 items */ "plastic bottle","plastic bag","candy wrapper","chip bag","straw","styrofoam","plastic spoon","plastic fork","cup lid","bubble wrap","snack wrapper","juice pouch","milk carton","plastic cover","old pen","broken ruler","plastic cup","plastic plate","wrapper","plastic film","rubber band","tape","plastic string","polybag","plastic packaging","old toothbrush","plastic case","plastic toy","hard plastic","soft plastic","plastic container","disposable cup","plastic lid","plastic scrap","plastic trash","synthetic waste","plastic piece","plastic debris","plastic fragments","plastic waste","food wrapper","instant noodles cup","plastic sheet","plastic material","broken plastic","plastic parts","plastic junk","garbage plastic","waste plastic","plastic residue"],"nonbio");
+const nonbio = make(["plastic bottle","plastic bag","candy wrapper","chip bag","straw","styrofoam","plastic spoon","plastic fork","cup lid","bubble wrap","snack wrapper","juice pouch","milk carton","plastic cover","old pen","broken ruler","plastic cup","plastic plate","wrapper","plastic film","rubber band","tape","plastic string","polybag","plastic packaging","old toothbrush","plastic case","plastic toy","hard plastic","soft plastic","plastic container","disposable cup","plastic lid","plastic scrap","plastic trash","synthetic waste","plastic piece","plastic debris","plastic fragments","plastic waste","food wrapper","instant noodles cup","plastic sheet","plastic material","broken plastic","plastic parts","plastic junk","garbage plastic","waste plastic","plastic residue"],"nonbio");
 
-const recycle = make([/* 50 items */ "paper","notebook","newspaper","magazine","cardboard","carton box","paper bag","bond paper","old book","folder","envelope","clean paper","glass bottle","glass jar","aluminum can","tin can","metal lid","foil","clean container","plastic bottle (clean)","paper cup","egg tray","carton packaging","paper wrapper","office paper","scratch paper","clean carton","clean bottle","glass container","metal can","aluminum foil","clean plastic","recyclable plastic","paper roll","cardboard box","paper sheet","reusable paper","clean packaging","glass scrap","metal scrap","clean wrapper","recycle material","clean cup","clean can","clean jar","paper scrap","recyclable waste","clean paper bag","clean box","recycle item"],"recycle");
+const recycle = make(["paper","notebook","newspaper","magazine","cardboard","carton box","paper bag","bond paper","old book","folder","envelope","clean paper","glass bottle","glass jar","aluminum can","tin can","metal lid","foil","clean container","plastic bottle (clean)","paper cup","egg tray","carton packaging","paper wrapper","office paper","scratch paper","clean carton","clean bottle","glass container","metal can","aluminum foil","clean plastic","recyclable plastic","paper roll","cardboard box","paper sheet","reusable paper","clean packaging","glass scrap","metal scrap","clean wrapper","recycle material","clean cup","clean can","clean jar","paper scrap","recyclable waste","clean paper bag","clean box","recycle item"],"recycle");
 
 const waste=[...bio,...nonbio,...recycle];
 
-/* GAME SAME */
 function setLevel(t){time=t;next(3);}
 function setMode(m){mode=m;startGame();}
 
@@ -215,7 +276,13 @@ itemAI.innerText=current.name;
 }
 
 function playerCheck(ans){
-if(ans===current.type) score++; else score--;
+if(ans===current.type){
+score++;
+playCorrect();
+}else{
+score--;
+playWrong();
+}
 scoreP.innerText="Score:"+score;
 newRound();
 }
@@ -228,9 +295,9 @@ scoreAI.innerText="AI:"+aiScore;
 },1200);
 }
 
-/* FALL SAME (SLOW) */
 function startFall(type){
 targetType=type;
+
 document.getElementById("bins").style.display="none";
 document.getElementById("controls").style.display="flex";
 next(4);
@@ -253,6 +320,7 @@ xP=window.innerWidth*0.25;
 xAI=window.innerWidth*0.75;
 
 fallInterval=setInterval(()=>{
+
 let obj=waste[Math.random()*waste.length|0];
 
 let div=document.createElement("div");
@@ -270,15 +338,19 @@ div.style.top=y+"px";
 if(y>window.innerHeight-150){
 
 if(Math.abs(xP-div.offsetLeft)<80){
-if(obj.type===targetType) score++; else score--;
+if(obj.type===targetType){
+score++;
+playCorrect();
+}else{
+score--;
+playWrong();
+}
 scoreP.innerText="Score:"+score;
 }
 
-xAI += (div.offsetLeft - xAI)*0.2;
-canAI.style.left=xAI+"px";
-
 if(Math.abs(xAI-div.offsetLeft)<80){
-if(obj.type===targetType) aiScore++; else aiScore--;
+if(obj.type===targetType) aiScore++;
+else aiScore--;
 scoreAI.innerText="AI:"+aiScore;
 }
 
@@ -288,8 +360,6 @@ clearInterval(move);
 },50);
 
 },1800);
-
-startTimer();
 }
 
 function moveLeft(){xP-=40;canP.style.left=xP+"px";}

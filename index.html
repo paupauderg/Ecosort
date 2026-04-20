@@ -98,7 +98,7 @@ background:white;font-weight:bold;cursor:pointer;">
 <div id="s1" class="screen active">
 <h1>♻️ EcoSort</h1>
 <p>Better played in <b>LANDSCAPE MODE</b></p>
-<p>Sorting = classify waste | Quiz = answer category | Falling = catch correct waste only</p>
+<p>Sorting = classify waste | Falling = catch correct waste only</p>
 <button onclick="startLobby(); next('Name')">Start</button>
 </div>
 
@@ -115,7 +115,6 @@ background:white;font-weight:bold;cursor:pointer;">
 
 <div id="s3" class="screen">
 <button onclick="setMode('sort')">Sorting</button>
-<button onclick="setMode('quiz')">Quiz</button>
 <button onclick="next('fallSelect')">Falling</button>
 </div>
 
@@ -223,80 +222,14 @@ startGameMusic();
 startGame();
 }
 
-/* QUIZ DATA (50 QUESTIONS ONLY CHANGE) */
-const quizData=[
-{q:"Banana peel?",a:"bio"},{q:"Apple core?",a:"bio"},{q:"Leftover rice?",a:"bio"},
-{q:"Vegetable scraps?",a:"bio"},{q:"Egg shells?",a:"bio"},{q:"Coffee grounds?",a:"bio"},
-{q:"Tea bag?",a:"bio"},{q:"Bread?",a:"bio"},{q:"Fruit peel?",a:"bio"},
-{q:"Fish bones?",a:"bio"},
-
-{q:"Plastic bottle?",a:"nonbio"},{q:"Plastic bag?",a:"nonbio"},
-{q:"Candy wrapper?",a:"nonbio"},{q:"Chip bag?",a:"nonbio"},
-{q:"Straw?",a:"nonbio"},{q:"Styrofoam?",a:"nonbio"},
-{q:"Plastic spoon?",a:"nonbio"},{q:"Plastic fork?",a:"nonbio"},
-{q:"Cup lid?",a:"nonbio"},{q:"Bubble wrap?",a:"nonbio"},
-
-{q:"Paper?",a:"recycle"},{q:"Notebook?",a:"recycle"},
-{q:"Newspaper?",a:"recycle"},{q:"Magazine?",a:"recycle"},
-{q:"Cardboard?",a:"recycle"},{q:"Carton box?",a:"recycle"},
-{q:"Paper bag?",a:"recycle"},{q:"Bond paper?",a:"recycle"},
-{q:"Old book?",a:"recycle"},{q:"Folder?",a:"recycle"},
-
-{q:"Leaf?",a:"bio"},{q:"Grass?",a:"bio"},{q:"Flower?",a:"bio"},
-{q:"Plant stem?",a:"bio"},{q:"Fruit seeds?",a:"bio"},
-
-{q:"Rubber band?",a:"nonbio"},{q:"Tape?",a:"nonbio"},
-{q:"Plastic string?",a:"nonbio"},{q:"Polybag?",a:"nonbio"},
-{q:"Plastic packaging?",a:"nonbio"},
-
-{q:"Envelope?",a:"recycle"},{q:"Clean paper?",a:"recycle"},
-{q:"Glass bottle?",a:"recycle"},{q:"Glass jar?",a:"recycle"},
-{q:"Aluminum can?",a:"recycle"},{q:"Tin can?",a:"recycle"},
-{q:"Metal lid?",a:"recycle"},{q:"Foil?",a:"recycle"},
-{q:"Clean container?",a:"recycle"},{q:"Paper cup?",a:"recycle"}
-];
-
 /* ORIGINAL DATA (UNCHANGED) */
 const make=(a,t)=>a.map(x=>({name:x,type:t}));
 
-const bio=make([
-"banana peel","apple core","leftover rice","vegetable scraps","egg shells",
-"coffee grounds","tea bag","bread","fruit peel","fish bones",
-"chicken bones","spoiled food","leaf","grass","flower",
-"plant stem","fruit seeds","paper napkin","tissue","food waste",
-"vegetable peel","fruit skin","organic waste","compost","garden waste",
-"weeds","flower petals","banana leaf","corn husk","coconut shell",
-"peanut shells","fruit core","tree leaves","plant roots","soil",
-"food leftovers","rice husk","tea leaves","vegetable stem","spoiled fruit",
-"organic scraps","paper plate","biodegradable bag","plant waste","natural fiber",
-"food crumbs","fruit pulp","leaf litter","organic trash","plant waste"
-],"bio");
+const bio=make(["banana peel","apple core","leftover rice","vegetable scraps","egg shells","coffee grounds","tea bag","bread","fruit peel","fish bones","chicken bones","spoiled food","leaf","grass","flower","plant stem","fruit seeds","paper napkin","tissue","food waste","vegetable peel","fruit skin","organic waste","compost","garden waste","weeds","flower petals","banana leaf","corn husk","coconut shell","peanut shells","fruit core","tree leaves","plant roots","soil","food leftovers","rice husk","tea leaves","vegetable stem","spoiled fruit","organic scraps","paper plate","biodegradable bag","plant waste","natural fiber","food crumbs","fruit pulp","leaf litter","organic trash","plant waste"],"bio");
 
-const nonbio=make([
-"plastic bottle","plastic bag","candy wrapper","chip bag","straw",
-"styrofoam","plastic spoon","plastic fork","cup lid","bubble wrap",
-"snack wrapper","juice pouch","milk carton","plastic cover","old pen",
-"broken ruler","plastic cup","plastic plate","wrapper","plastic film",
-"rubber band","tape","plastic string","polybag","plastic packaging",
-"old toothbrush","plastic case","plastic toy","hard plastic","soft plastic",
-"plastic container","disposable cup","plastic lid","plastic scrap","plastic trash",
-"synthetic waste","plastic piece","plastic debris","plastic fragments","plastic waste",
-"food wrapper","instant noodles cup","plastic sheet","plastic material","broken plastic",
-"plastic parts","plastic junk","garbage plastic","waste plastic","plastic residue"
-],"nonbio");
+const nonbio=make(["plastic bottle","plastic bag","candy wrapper","chip bag","straw","styrofoam","plastic spoon","plastic fork","cup lid","bubble wrap","snack wrapper","juice pouch","milk carton","plastic cover","old pen","broken ruler","plastic cup","plastic plate","wrapper","plastic film","rubber band","tape","plastic string","polybag","plastic packaging","old toothbrush","plastic case","plastic toy","hard plastic","soft plastic","plastic container","disposable cup","plastic lid","plastic scrap","plastic trash","synthetic waste","plastic piece","plastic debris","plastic fragments","plastic waste","food wrapper","instant noodles cup","plastic sheet","plastic material","broken plastic","plastic parts","plastic junk","garbage plastic","waste plastic","plastic residue"],"nonbio");
 
-const recycle=make([
-"paper","notebook","newspaper","magazine","cardboard",
-"carton box","paper bag","bond paper","old book","folder",
-"envelope","clean paper","glass bottle","glass jar","aluminum can",
-"tin can","metal lid","foil","clean container","plastic bottle (clean)",
-"paper cup","egg tray","carton packaging","paper wrapper","office paper",
-"scratch paper","clean carton","clean bottle","glass container","metal can",
-"aluminum foil","clean plastic","recyclable plastic","paper roll","cardboard box",
-"paper sheet","reusable paper","clean packaging","glass scrap","metal scrap",
-"clean wrapper","recycle material","clean cup","clean can","clean jar",
-"paper scrap","recyclable waste","clean paper bag","clean box","recycle item"
-],"recycle");
+const recycle=make(["paper","notebook","newspaper","magazine","cardboard","carton box","paper bag","bond paper","old book","folder","envelope","clean paper","glass bottle","glass jar","aluminum can","tin can","metal lid","foil","clean container","plastic bottle (clean)","paper cup","egg tray","carton packaging","paper wrapper","office paper","scratch paper","clean carton","clean bottle","glass container","metal can","aluminum foil","clean plastic","recyclable plastic","paper roll","cardboard box","paper sheet","reusable paper","clean packaging","glass scrap","metal scrap","clean wrapper","recycle material","clean cup","clean can","clean jar","paper scrap","recyclable waste","clean paper bag","clean box","recycle item"],"recycle");
 
 const waste=[...bio,...nonbio,...recycle];
 
@@ -326,19 +259,13 @@ setTimeout(()=>{alert("You:"+score+" AI:"+aiScore);location.reload();},1200);
 }
 
 function newRound(){
-if(mode==="quiz"){
-current=quizData[Math.random()*quizData.length|0];
-itemP.innerText=current.q;
-itemAI.innerText=current.q;
-}else{
 current=waste[Math.random()*waste.length|0];
 itemP.innerText=current.name;
 itemAI.innerText=current.name;
 }
-}
 
 function playerCheck(ans){
-let correct=(mode==="quiz")?current.a:current.type;
+let correct=current.type;
 if(ans===correct){score++;playCorrect();}else{score--;playWrong();}
 scoreP.innerText="Score:"+score;
 newRound();
@@ -346,8 +273,8 @@ newRound();
 
 function startAI(){
 setInterval(()=>{
-let guess=["bio","nonbio","recycle"][Math.random()*3|0];
-let correct=(mode==="quiz")?current.a:current.type;
+let guess=["Biodegradable","Non-biodegadable","recyclable"][Math.random()*3|0];
+let correct=current.type;
 if(guess===correct)aiScore++;
 scoreAI.innerText="AI:"+aiScore;
 },1200);
@@ -429,6 +356,22 @@ document.addEventListener("keydown",e=>{
 if(e.key==="ArrowLeft")moveLeft();
 if(e.key==="ArrowRight")moveRight();
 });
+
+/* TILT CONTROL */
+if (window.DeviceOrientationEvent) {
+window.addEventListener("deviceorientation", function(e){
+let tilt = e.gamma;
+if(!tilt) return;
+
+let moveSpeed = tilt / 5;
+xP += moveSpeed;
+
+if(xP < 0) xP = 0;
+if(xP > window.innerWidth - 150) xP = window.innerWidth - 150;
+
+if(canP) canP.style.left = xP + "px";
+});
+}
 
 </script>
 </body>

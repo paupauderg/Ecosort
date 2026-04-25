@@ -93,7 +93,7 @@ button{padding:10px 20px;margin:10px;border:none;border-radius:10px;}
 <div id="s1" class="screen active">
 <h1>♻️ EcoSort</h1>
 <p>Rotate phone to <b>LANDSCAPE MODE</b></p>
-<p>Sorting = Classify each waste item into the correct category | Falling = Catch only the correct type of waste while avoiding the wrong ones</p>
+<p>Sorting = Classify each waste item into the correct category | Falling = Catch only the correct type of waste while avoiding the wrong one</p>
 <button onclick="startLobby(); next('Name')">Start</button>
 </div>
 
@@ -114,9 +114,9 @@ button{padding:10px 20px;margin:10px;border:none;border-radius:10px;}
 </div>
 
 <div id="sfallSelect" class="screen">
-<button onclick="startFall('Biodegradable')">BIODEGRADABLE</button>
-<button onclick="startFall('Non-biodegradable')">NON-BIODEGRADABLE</button>
-<button onclick="startFall('Recyclable')">RECYCLABLE</button>
+<button onclick="startFall('bio')">BIODEGRADABLE</button>
+<button onclick="startFall('nonbio')">NON-BIODEGRADABLE</button>
+<button onclick="startFall('recycle')">RECYCLABLE</button>
 </div>
 
 <div id="s4" class="screen">
@@ -143,9 +143,9 @@ button{padding:10px 20px;margin:10px;border:none;border-radius:10px;}
 </div>
 
 <div class="bins" id="bins">
-<div class="bin bio" onclick="playerCheck('Biodegradbale')">BIODEGRADABLE</div>
-<div class="bin nonbio" onclick="playerCheck('Non-biodegradable')">NON-BIODEGRADABLE</div>
-<div class="bin recycle" onclick="playerCheck('Recyclable')">RECYCLABLE</div>
+<div class="bin bio" onclick="playerCheck('bio')">BIODEGRADABLE</div>
+<div class="bin nonbio" onclick="playerCheck('nonbio')">NON-BIODEGRADABLE</div>
+<div class="bin recycle" onclick="playerCheck('recycle')">RECYCLABLE</div>
 </div>
 
 <div id="controls" class="controls" style="display:none;">
